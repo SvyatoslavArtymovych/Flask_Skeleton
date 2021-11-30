@@ -1,4 +1,5 @@
 import os
+import pathlib
 
 base_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -13,6 +14,9 @@ class BaseConfig(object):
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     WTF_CSRF_ENABLED = False
+
+    STATIC_PATH = pathlib.Path("./app/static")
+    FILE_UPLOAD_PATH = STATIC_PATH / "assets/upload"
 
     @staticmethod
     def configure(app):

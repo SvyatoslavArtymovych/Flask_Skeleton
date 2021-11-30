@@ -1,55 +1,48 @@
 import os
-
-from flask import Flask, render_template
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager
-from werkzeug.exceptions import HTTPException
+from flask_migrate import Migrate
+from flask_jwt_extended import JWTManager
+from flask_openapi3 import OpenAPI
+from flask_openapi3.models import Info
+from flask_openapi3.models.security import HTTPBearer
 
-# instantiate extensions
-login_manager = LoginManager()
+
 db = SQLAlchemy()
 
 
 def create_app(environment="development"):
 
     from config import config
-    from app.views import (
-        main_blueprint,
-        auth_blueprint,
-    )
     from app.models import (
         User,
-        AnonymousUser,
     )
 
     # Instantiate app.
-    app = Flask(__name__)
+    info = Info(title='Skelet API', version='1.0.0')
+    jwt = HTTPBearer(bearerFormat="JWT")
+    securitySchemes = {"jwt": jwt}
+    app = OpenAPI(__name__, securitySchemes=securitySchemes, info=info)
 
     # Set app config.
     env = os.environ.get("FLASK_ENV", environment)
     app.config.from_object(config[env])
     config[env].configure(app)
+    app.config["VALIDATE_RESPONSE"] = True
 
     # Set up extensions.
     db.init_app(app)
-    login_manager.init_app(app)
 
-    # Register blueprints.
-    app.register_blueprint(auth_blueprint)
-    app.register_blueprint(main_blueprint)
+    # Register bluerint
+    from app.views import api_auth, api_file
+    app.register_api(api_auth)
+    app.register_api(api_file)
 
-    # Set up flask login.
-    @login_manager.user_loader
-    def get_user(id):
-        return User.query.get(int(id))
+    jwt = JWTManager(app)
 
-    login_manager.login_view = "auth.login"
-    login_manager.login_message_category = "info"
-    login_manager.anonymous_user = AnonymousUser
+    @jwt.user_lookup_loader
+    def user_lookup_callback(_jwt_header, jwt_data):
+        identity = jwt_data["sub"]
+        return User.query.filter_by(id=identity).one_or_none()
 
-    # Error handlers.
-    @app.errorhandler(HTTPException)
-    def handle_http_error(exc):
-        return render_template("error.html", error=exc), exc.code
-
+    Migrate(app, db)
     return app

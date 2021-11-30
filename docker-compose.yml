@@ -1,0 +1,31 @@
+version: '3.9'
+
+services:
+
+  db:
+    image: postgres:13
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+
+    ports:
+      - 127.0.0.1:${LOCAL_DB_PORT}:54321
+
+  app:
+    container_name: "flask_app_postgre"
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - FLASK_ENV=development
+      - FLASK_APP=wsgi:app
+      - FLASK_DEBUG=1
+    ports:
+      - 127.0.0.1:9191:${FLASK_PORT}
+    command: poetry run flask run --host=0.0.0.0 --port=${FLASK_PORT}
+    depends_on:
+      - db
+

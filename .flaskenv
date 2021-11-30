@@ -7,3 +7,4 @@
 FLASK_APP=wsgi:app
 FLASK_ENV=development
 FLASK_DEBUG=1
+API_ROOT=/api
