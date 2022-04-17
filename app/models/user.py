@@ -28,14 +28,6 @@ class User(db.Model, UserMixin, ModelMixin):
     def password(self, password):
         self.password_hash = generate_password_hash(password)
 
-    @classmethod
-    def authenticate(cls, user_id, password):
-        user = cls.query.filter(
-            db.or_(func.lower(cls.username) == func.lower(user_id), func.lower(cls.email) == func.lower(user_id))
-        ).first()
-        if user is not None and check_password_hash(user.password, password):
-            return user
-
     def __repr__(self):
         return f"<User: {self.username}>"
 

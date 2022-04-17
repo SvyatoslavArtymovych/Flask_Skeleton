@@ -16,7 +16,6 @@ class BaseConfig(object):
     WTF_CSRF_ENABLED = False
 
     STATIC_PATH = pathlib.Path("./app/static")
-    FILE_UPLOAD_PATH = STATIC_PATH / "assets/upload"
 
     @staticmethod
     def configure(app):
