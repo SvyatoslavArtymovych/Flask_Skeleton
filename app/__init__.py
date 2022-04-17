@@ -25,6 +25,7 @@ def create_app(environment="development"):
 
     # Set up extensions.
     db.init_app(app)
+    login_manager.init_app(app)
 
     # Register bluerint
     from app.views import (

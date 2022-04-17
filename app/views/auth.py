@@ -23,8 +23,7 @@ def register():
         log(log.INFO, "Added user [%s]", user)
         return redirect(url_for("/auth.login"))
 
-    return {}
-    # return render_template("auth/register.html", form=form)
+    return render_template("auth/register.html", form=form)
 
 
 @blueprint.route("/login", methods=["GET", "POST"])
@@ -47,8 +46,7 @@ def login():
             log(log.INFO, "Login user [%s]", user)
             return redirect(url_for("/.index"))
 
-    return {}
-    # return render_template("auth/login.html", form=form, error=error)
+    return render_template("auth/login.html", form=form, error=error)
 
 
 @blueprint.route("/logout", methods=["GET"])
@@ -60,5 +58,4 @@ def logout():
     session.clear()
     logout_user()
 
-    return {}
-    # return redirect(url_for("/auth.login"))
+    return redirect(url_for("/auth.login"))
